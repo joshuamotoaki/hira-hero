@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { AppBar, AppShell } from "@skeletonlabs/skeleton";
+  import keyboardJp from "$lib/keyboardJp.webp"
 
   class Queue<T> {
     private items: T[];
@@ -204,7 +205,7 @@
       </p>
     </div>
   
-    <img src="/src/lib/keyboardJp.png" alt="Japanese Keyboard" class="w-2/3 mx-auto mt-10" />
+    <img src={keyboardJp} alt="Japanese Keyboard" class="w-2/3 mx-auto mt-10" />
 
     <div class="mt-14 space-y-2 w-2/3 mx-auto">
       <h2 class="text-center text-xl">
