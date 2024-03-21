@@ -35,7 +35,7 @@
    * Characters per minute calculator
    */
   class CPM {
-    private MAX_LENGTH = 30;
+    private MAX_LENGTH = 25;
     private MIN_LENGTH = 15;
     private SPEED_THRESHOLD = 75;
     
@@ -214,9 +214,8 @@
       <p class="text-center">
         Type the character in the middle of the screen to progress to the next character.
         Once you reach 75 characters-per-minute (CPM) with at least 15 typed characters 
-        (with a max window size of 30 previous types and max difference of 5 seconds between each character typed), 
+        (with a max window size of 25 previous types and max difference of 5 seconds between each character typed), 
         you will progress to the next character, and the CPM will reset.
-        If you type the wrong character, you will be penalized by 1 second.
       </p>
       <p class="text-center">
         Progress is saved locally, so you can continue where you left off.
