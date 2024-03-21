@@ -35,7 +35,7 @@
    */
   class CPM {
     private MAX_LENGTH = 30;
-    private MIN_LENGTH = 10;
+    private MIN_LENGTH = 15;
     private SPEED_THRESHOLD = 100;
     
     private timeSeries: number[] = [];
@@ -71,7 +71,11 @@
      * @returns {boolean} Whether the user should progress to the next character
      */
     addTime(): boolean {
-      this.timeSeries.push(Date.now());
+      let currentTime = Date.now();
+      if (currentTime - this.timeSeries[this.timeSeries.length - 1] > 5000) {
+        currentTime = this.timeSeries[this.timeSeries.length - 1] + 5000;
+      }
+      this.timeSeries.push(currentTime);
       if (this.timeSeries.length > this.MAX_LENGTH) {
         this.timeSeries.shift();
       }
@@ -79,7 +83,6 @@
     }
   }
 
-  const CPM_THRESHOLD = 100;
   let ready = false;
 
   const HIRAGANA = [
@@ -113,25 +116,26 @@
       if (cpm.addTime()) {
         learned.push(unlearned.dequeue());
         localStorage.setItem("learned", JSON.stringify(learned));
-  
+        numInCycle++;
         cpm.reset();
       }
-      for (let i = 0; i < currentDisplay.length - 1; i++) {
-        currentDisplay[i] = currentDisplay[i + 1];
-      }
-      currentDisplay[currentDisplay.length - 1] = learned[Math.floor(Math.random() * learned.length)];
-    } else {
-
+      currentDisplay.shift();
+      currentDisplay[currentDisplay.length] = learned[Math.floor(Math.random() * learned.length)];
     }
-    console.log(cpm.getCPM());
+    currentCPM = cpm.getCPM() === Infinity || isNaN(cpm.getCPM()) ? 0 : cpm.getCPM();
   }
 
+  let currentCPM = 0;
+  let numInCycle = 0;
+
   onMount(() => {
-    localStorage.getItem("learned") ? learned = JSON.parse(localStorage.getItem("learned")) : learned = [HIRAGANA[0]];
+    localStorage.getItem("learned") ? learned = JSON.parse(localStorage.getItem("learned")) : learned = [HIRAGANA[0], HIRAGANA[1]];
     localStorage.setItem("learned", JSON.stringify(learned));
 
     const unlearnedArray = HIRAGANA.filter((character) => !learned.includes(character));
     unlearned = new Queue<string>(unlearnedArray);
+
+    numInCycle = learned.length;
 
     for (let i = 0; i < currentDisplay.length; i++) {
       currentDisplay[i] = learned[Math.floor(Math.random() * learned.length)];
@@ -174,7 +178,7 @@
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>
-  <div>
+  <div class="max-w-7xl mx-auto px-8">
     {#if ready}
     <div>
       <h1 class="text-4xl text-center mt-8">Learn Japanese Characters</h1>
@@ -190,11 +194,34 @@
     {/if}
 
     <div>
-      <p class="text-center mt-8">Type the underlined character in the middle</p>
+      <p class="text-center mt-8 space-x-8">
+        <span>
+          CPM: {currentCPM.toFixed(2)} 
+        </span>
+        <span>
+          Characters: {numInCycle} 
+        </span>
+      </p>
     </div>
   
-    <img src="/src/lib/keyboardJp.png" alt="Japanese Keyboard" class="w-1/2 mx-auto mt-14" />
+    <img src="/src/lib/keyboardJp.png" alt="Japanese Keyboard" class="w-2/3 mx-auto mt-10" />
 
+    <div class="mt-14 space-y-2 w-2/3 mx-auto">
+      <h2 class="text-center text-xl">
+        Gameplay
+      </h2>
+      <p class="text-center">
+        Type the character in the middle of the screen to progress to the next character.
+        Once you reach 100 characters-per-minute (CPM) with at least 15 typed characters 
+        (with a max window size of 30 previous types and max difference of 5 seconds between each character typed), 
+        you will progress to the next character, and the CPM will reset.
+        If you type the wrong character, you will be penalized by 1 second.
+      </p>
+      <p class="text-center">
+        Progress is saved locally, so you can continue where you left off.
+        You can reset your progress by clicking the "Reset" button in the top right corner.
+      </p>
+    </div>
   </div>
 </AppShell>
 
