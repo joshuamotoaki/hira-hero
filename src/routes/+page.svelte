@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { AppBar, AppShell } from "@skeletonlabs/skeleton";
+  import { AppBar, AppShell, type ToastSettings, getToastStore } from "@skeletonlabs/skeleton";
   import keyboardJp from "$lib/keyboardJp.webp"
 
   class Queue<T> {
@@ -47,6 +47,33 @@
 
     reset(): void {
       this.timeSeries = [];
+      this.MAX_LENGTH = 25;
+      this.MIN_LENGTH = 15;
+      this.SPEED_THRESHOLD = 75;
+    }
+
+    getMaxLength(): number {
+      return this.MAX_LENGTH;
+    }
+
+    getMinLength(): number {
+      return this.MIN_LENGTH;
+    }
+
+    getSpeedThreshold(): number {
+      return this.SPEED_THRESHOLD;
+    }
+
+    setMaxLength(maxLength: number): void {
+      this.MAX_LENGTH = maxLength;
+    }
+
+    setMinLength(minLength: number): void {
+      this.MIN_LENGTH = minLength;
+    }
+
+    setSpeedThreshold(speedThreshold: number): void {
+      this.SPEED_THRESHOLD = speedThreshold;
     }
 
     getCPM(): number {
@@ -129,6 +156,12 @@
   let currentCPM = 0;
   let numInCycle = 0;
 
+  let threshInput = "75";
+  let minWidowInput = "15";
+  let maxWindowInput = "25";
+
+  const toast = getToastStore();
+
   onMount(() => {
     localStorage.getItem("learned") ? learned = JSON.parse(localStorage.getItem("learned")) : learned = [HIRAGANA[0], HIRAGANA[1]];
     localStorage.setItem("learned", JSON.stringify(learned));
@@ -171,6 +204,7 @@
             if (confirm("Are you sure you want to reset your progress?")) {
               localStorage.clear();
               location.reload();
+              cpm.reset();
             }
           }}
         >
@@ -207,13 +241,108 @@
   
     <img src={keyboardJp} alt="Japanese Keyboard" class="w-2/3 mx-auto mt-10" />
 
+    <div class="w-3/4 flex justify-center mx-auto gap-8">
+      <div class="w-64 mx-auto mt-6">
+        <p>CPM Threshold</p>
+        <div class="input-group input-group-divider grid-cols-[1fr_auto]">
+          <input type="text" bind:value={threshInput} />
+          <button class="variant-filled-secondary" on:click={() => {
+            const conv = parseInt(threshInput);
+            if (isNaN(conv) || conv <= 0) return;
+            cpm.setSpeedThreshold(conv);
+            const t = {
+              message: `CPM threshold set to ${conv}`,
+              duration: 3000
+            };
+            toast.trigger(t);
+          }}>
+            Enter
+          </button>
+        </div>
+      </div>
+      <div class="w-64 mx-auto mt-6">
+        <p>Min Window</p>
+        <div class="input-group input-group-divider grid-cols-[1fr_auto]">
+          <input type="text" bind:value={minWidowInput} />
+          <button class="variant-filled-secondary" on:click={() => {
+            const conv = parseInt(minWidowInput);
+            if (isNaN(conv) || conv < 2) {
+              const t = {
+                message: `Invalid min window size`,
+                duration: 3000,
+                background: 'variant-filled-error'
+              };
+              toast.trigger(t);
+              return;
+            }
+
+            if (conv > cpm.getMaxLength()) {
+              const t = {
+                message: `Min window size must be less than or equal to max window size`,
+                duration: 3000,
+                background: 'variant-filled-error'
+              };
+              toast.trigger(t);
+              return;
+            }
+
+            cpm.setSpeedThreshold(conv);
+            const t = {
+              message: `Min window size set to ${conv}`,
+              duration: 3000
+            };
+            toast.trigger(t);
+          }}>
+            Enter
+          </button>
+        </div>
+      </div>
+      <div class="w-64 mx-auto mt-6">
+        <p>Max Window</p>
+        <div class="input-group input-group-divider grid-cols-[1fr_auto]">
+          <input type="text" bind:value={maxWindowInput} />
+          <button class="variant-filled-secondary" on:click={() => {
+            const conv = parseInt(maxWindowInput);
+            if (isNaN(conv) || conv < 2) {
+              const t = {
+                message: `Invalid max window size`,
+                duration: 3000,
+                background: 'variant-filled-error'
+              };
+              toast.trigger(t);
+              return;
+            } 
+
+            if (conv < cpm.getMinLength()) {
+              const t = {
+                message: `Max window size must be greater than or equal to min window size`,
+                duration: 3000,
+                background: 'variant-filled-error'
+              };
+              toast.trigger(t);
+              return;
+            }
+
+            cpm.setSpeedThreshold(conv);
+            const t = {
+              message: `Max window size set to ${conv}`,
+              duration: 3000
+            };
+            toast.trigger(t);
+          }}>
+            Enter
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="mt-14 space-y-2 w-2/3 mx-auto">
       <h2 class="text-center text-xl">
         Gameplay
       </h2>
       <p class="text-center">
         Type the character in the middle of the screen to progress to the next character.
-        Once you reach 75 characters-per-minute (CPM) with at least 15 typed characters 
+        Once you reach the threshold characters-per-minute (CPM) with at least 15 typed characters 
         (with a max window size of 25 previous types and max difference of 5 seconds between each character typed), 
         you will progress to the next character, and the CPM will reset.
       </p>
