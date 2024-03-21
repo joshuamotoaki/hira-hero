@@ -1,88 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { AppBar, AppShell, type ToastSettings, getToastStore } from "@skeletonlabs/skeleton";
+  import { AppBar, AppShell, getToastStore } from "@skeletonlabs/skeleton";
   import keyboardJp from "$lib/keyboardJp.webp"
-  import { Queue } from "./queue";
-
-  /**
-   * Characters per minute calculator
-   */
-  class CPM {
-    private MAX_LENGTH = 25;
-    private MIN_LENGTH = 15;
-    private SPEED_THRESHOLD = 75;
-    
-    private timeSeries: number[] = [];
-
-    constructor() {
-      this.timeSeries = [];
-    }
-
-    reset(): void {
-      this.timeSeries = [];
-      this.MAX_LENGTH = 25;
-      this.MIN_LENGTH = 15;
-      this.SPEED_THRESHOLD = 75;
-    }
-
-    getMaxLength(): number {
-      return this.MAX_LENGTH;
-    }
-
-    getMinLength(): number {
-      return this.MIN_LENGTH;
-    }
-
-    getSpeedThreshold(): number {
-      return this.SPEED_THRESHOLD;
-    }
-
-    setMaxLength(maxLength: number): void {
-      this.MAX_LENGTH = maxLength;
-    }
-
-    setMinLength(minLength: number): void {
-      this.MIN_LENGTH = minLength;
-    }
-
-    setSpeedThreshold(speedThreshold: number): void {
-      this.SPEED_THRESHOLD = speedThreshold;
-    }
-
-    getCPM(): number {
-      const timeDifference = this.timeSeries[this.timeSeries.length - 1] - this.timeSeries[0];
-      return (this.timeSeries.length / timeDifference) * 60000;
-    }
-
-    shouldProgress(): boolean {
-      if (this.timeSeries.length < this.MIN_LENGTH) return false;
-      return this.getCPM() > this.SPEED_THRESHOLD;
-    } 
-
-    /**
-     * Penalize the user by adding a time 1 second before the first time in the time series
-     */
-    penalize(): void {
-      if (this.timeSeries.length > 0) 
-        this.timeSeries[0] = this.timeSeries[0] - 1000;      
-    }
-
-    /**
-     * Add a time to the time series
-     * @returns {boolean} Whether the user should progress to the next character
-     */
-    addTime(): boolean {
-      let currentTime = Date.now();
-      if (currentTime - this.timeSeries[this.timeSeries.length - 1] > 5000) {
-        currentTime = this.timeSeries[this.timeSeries.length - 1] + 5000;
-      }
-      this.timeSeries.push(currentTime);
-      if (this.timeSeries.length > this.MAX_LENGTH) {
-        this.timeSeries.shift();
-      }
-      return this.shouldProgress();
-    }
-  }
+  import Queue from "$lib/structs/queue";
+  import CPM from "./cpm";
 
   let ready = false;
 
@@ -219,7 +140,7 @@
     <div class="w-3/4 flex justify-center mx-auto gap-8">
       <div class="w-64 mx-auto mt-6">
         {#key refresher}
-          <p>CPM Threshold ({cpm.getSpeedThreshold()})</p>
+          <p>CPM Threshold ({cpm.getCpmThreshold()})</p>
         {/key}
         <div class="input-group input-group-divider grid-cols-[1fr_auto]">
           <input type="text" bind:value={threshInput} />
@@ -235,7 +156,7 @@
               return;
             }
 
-            cpm.setSpeedThreshold(conv);
+            cpm.setCpmThreshold(conv);
             refresher = !refresher;
 
             const t = {
@@ -250,7 +171,7 @@
       </div>
       <div class="w-64 mx-auto mt-6">
         {#key refresher}
-          <p>Min Window ({cpm.getMinLength()})</p>
+          <p>Min Window ({cpm.getMinWindow()})</p>
         {/key}
         <div class="input-group input-group-divider grid-cols-[1fr_auto]">
           <input type="text" bind:value={minWidowInput} />
@@ -266,7 +187,7 @@
               return;
             }
 
-            if (conv > cpm.getMaxLength()) {
+            if (conv > cpm.getMaxWindow()) {
               const t = {
                 message: `Min window size must be less than or equal to max window size`,
                 duration: 3000,
@@ -276,7 +197,7 @@
               return;
             }
 
-            cpm.setMinLength(conv);
+            cpm.setMinWindow(conv);
             refresher = !refresher;
 
             const t = {
@@ -291,7 +212,7 @@
       </div>
       <div class="w-64 mx-auto mt-6">
         {#key refresher}
-          <p>Max Window ({cpm.getMaxLength()})</p>
+          <p>Max Window ({cpm.getMinWindow()})</p>
         {/key}
         <div class="input-group input-group-divider grid-cols-[1fr_auto]">
           <input type="text" bind:value={maxWindowInput} />
@@ -307,7 +228,7 @@
               return;
             } 
 
-            if (conv < cpm.getMinLength()) {
+            if (conv < cpm.getMinWindow()) {
               const t = {
                 message: `Max window size must be greater than or equal to min window size`,
                 duration: 3000,
@@ -317,7 +238,7 @@
               return;
             }
 
-            cpm.setMaxLength(conv);
+            cpm.setMaxWindow(conv);
             refresher = !refresher;
 
             const t = {
