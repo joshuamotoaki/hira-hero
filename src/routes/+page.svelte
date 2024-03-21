@@ -37,7 +37,7 @@
   class CPM {
     private MAX_LENGTH = 30;
     private MIN_LENGTH = 15;
-    private SPEED_THRESHOLD = 100;
+    private SPEED_THRESHOLD = 75;
     
     private timeSeries: number[] = [];
 
@@ -213,7 +213,7 @@
       </h2>
       <p class="text-center">
         Type the character in the middle of the screen to progress to the next character.
-        Once you reach 100 characters-per-minute (CPM) with at least 15 typed characters 
+        Once you reach 75 characters-per-minute (CPM) with at least 15 typed characters 
         (with a max window size of 30 previous types and max difference of 5 seconds between each character typed), 
         you will progress to the next character, and the CPM will reset.
         If you type the wrong character, you will be penalized by 1 second.
