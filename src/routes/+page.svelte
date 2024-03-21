@@ -257,15 +257,20 @@
       <h2 class="text-center text-xl">
         Gameplay
       </h2>
+      {#key refresher}
       <p class="text-center">
         Type the character in the middle of the screen to progress to the next character.
-        Once you reach the threshold characters-per-minute (CPM) with at least 15 typed characters 
-        (with a max window size of 25 previous types and max difference of 5 seconds between each character typed), 
+        Once you reach {cpm.getCpmThreshold()} characters-per-minute (CPM) 
+        with at least {cpm.getMinWindow()} typed characters 
+        (with a max window size of {cpm.getMaxWindow()} previous types 
+        and max difference of 5 seconds between each character typed), 
         you will progress to the next character, and the CPM will reset.
       </p>
+      {/key}
       <p class="text-center">
         Progress is saved locally, so you can continue where you left off.
-        You can reset your progress by clicking the "Reset" button in the top right corner.
+        You can reset your progress by clicking the "Reset" button in 
+        the top right corner.
       </p>
     </div>
   </div>
