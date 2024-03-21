@@ -163,8 +163,10 @@
 				<button
           class="btn btn-sm variant-ghost-surface"
           on:click={() => {
-            localStorage.clear();
-            location.reload();
+            if (confirm("Are you sure you want to reset your progress?")) {
+              localStorage.clear();
+              location.reload();
+            }
           }}
         >
           Reset
