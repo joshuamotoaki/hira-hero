@@ -2,24 +2,36 @@
  * Characters per minute calculator
  */
 export default class CPM {
-  private timeSeries: number[] = []; // Time series of the user's typing
-  
-  private maxWindow = 25;            // Maximum length of the time series
-  private minWindow = 15;            // Minimum length of the times series for progression
-  private cpmThreshold = 75;         // Characters per minute threshold for progression
-
+  private readonly DEFAULT_MAX_WINDOW = 25;  // Default maximum window size
+  private readonly DEFAULT_MIN_WINDOW = 15;  // Default minimum window size
+  private readonly DEFAULT_CPM_THRESHOLD = 60; // Default characters per minute threshold
   private readonly MAX_TIME = 5000;     // Maximum time between key presses (not including penalty time)
+  private readonly DEFAULT_PENALTY = 1000; // Default penalty amount
   private readonly MAX_PENALTY = 5000;  // Maximum penalty amount
-  private penaltyAmount = 0;            // Amount of penalty to apply
+
+  private timeSeries: number[]; // Time series of the user's typing
+  private maxWindow;            // Maximum length of the time series
+  private minWindow;            // Minimum length of the times series for progression
+  private cpmThreshold;         // Characters per minute threshold for progression
+  private penaltyAmount;        // Amount of penalty to apply
   
+
+  constructor() {
+    this.timeSeries = [];
+    this.maxWindow = this.DEFAULT_MAX_WINDOW;
+    this.minWindow = this.DEFAULT_MIN_WINDOW;
+    this.cpmThreshold = this.DEFAULT_CPM_THRESHOLD;
+    this.penaltyAmount = 0;
+  }
+
   /**
    * Reset the time series and parameters
    */
   reset(): void {
     this.timeSeries = [];
-    this.maxWindow = 25;
-    this.minWindow = 15;
-    this.cpmThreshold = 75;
+    this.maxWindow = this.DEFAULT_MAX_WINDOW;
+    this.minWindow = this.DEFAULT_MIN_WINDOW;
+    this.cpmThreshold = this.DEFAULT_CPM_THRESHOLD;
   }
 
   /**
@@ -92,7 +104,7 @@ export default class CPM {
    * Penalize the user for a mistake
    * @param {number} penalty - The penalty to apply in milliseconds
    */
-  penalize(penalty: number = 1000): void {
+  penalize(penalty: number = this.DEFAULT_PENALTY): void {
     if (penalty < 0) {
       console.error('Penalty cannot be negative');
       return;

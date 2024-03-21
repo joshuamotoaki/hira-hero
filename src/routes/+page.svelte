@@ -57,9 +57,9 @@
   let currentCPM = 0;
   let numInCycle = 0;
 
-  let threshInput = "75";
-  let minWidowInput = "15";
-  let maxWindowInput = "25";
+  let threshInput = cpm.getCpmThreshold().toString();
+  let minWidowInput = cpm.getMinWindow().toString();
+  let maxWindowInput = cpm.getMaxWindow().toString();
 
   let refresher = false;
 
