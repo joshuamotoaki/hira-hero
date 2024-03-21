@@ -212,7 +212,7 @@
       </div>
       <div class="w-64 mx-auto mt-6">
         {#key refresher}
-          <p>Max Window ({cpm.getMinWindow()})</p>
+          <p>Max Window ({cpm.getMaxWindow()})</p>
         {/key}
         <div class="input-group input-group-divider grid-cols-[1fr_auto]">
           <input type="text" bind:value={maxWindowInput} />
