@@ -4,7 +4,7 @@
 export default class Queue<T> {
   private items: T[];
 
-  constructor(items = []) {
+  constructor(items: T[] = []) {
     this.items = items;
   }
 

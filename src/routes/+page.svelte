@@ -35,8 +35,8 @@
 
   const handleInput = (event: KeyboardEvent) => {
     if (event.key === currentDisplay[3]) {
-      if (cpm.addTime()) {
-        learned.push(unlearned.dequeue());
+      if (!unlearned.isEmpty() && cpm.addTime()) {
+        learned.push(unlearned.dequeue() as string);
         localStorage.setItem("learned", JSON.stringify(learned));
         numInCycle++;
         cpm.reset();
@@ -59,7 +59,7 @@
   const toast = getToastStore();
 
   onMount(() => {
-    localStorage.getItem("learned") ? learned = JSON.parse(localStorage.getItem("learned")) : learned = [HIRAGANA[0], HIRAGANA[1]];
+    localStorage.getItem("learned") ? learned = JSON.parse(localStorage.getItem("learned") as string) : learned = [HIRAGANA[0], HIRAGANA[1]];
     localStorage.setItem("learned", JSON.stringify(learned));
 
     const unlearnedArray = HIRAGANA.filter((character) => !learned.includes(character));
