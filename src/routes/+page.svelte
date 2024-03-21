@@ -42,7 +42,14 @@
         cpm.reset();
       }
       currentDisplay.shift();
-      currentDisplay[currentDisplay.length] = learned[Math.floor(Math.random() * learned.length)];
+
+      // Add a new character to the end of the array, 
+      // ensuring it's not the same as the previous character
+      let nextCharacter = learned[Math.floor(Math.random() * learned.length)];
+      while (nextCharacter === currentDisplay[currentDisplay.length - 1]) {
+        nextCharacter = learned[Math.floor(Math.random() * learned.length)];
+      }
+      currentDisplay[currentDisplay.length] = nextCharacter;
     }
     currentCPM = cpm.getCPM() === Infinity || isNaN(cpm.getCPM()) ? 0 : cpm.getCPM();
   }
@@ -67,12 +74,17 @@
 
     numInCycle = learned.length;
 
-    for (let i = 0; i < currentDisplay.length; i++) {
-      currentDisplay[i] = learned[Math.floor(Math.random() * learned.length)];
+    // Set the initial display
+    currentDisplay[0] = learned[Math.floor(Math.random() * learned.length)];
+    for (let i = 1; i < currentDisplay.length; i++) {
+      let nextCharacter = learned[Math.floor(Math.random() * learned.length)];
+      while (nextCharacter === currentDisplay[i - 1]) {
+        nextCharacter = learned[Math.floor(Math.random() * learned.length)];
+      }
+      currentDisplay[i] = nextCharacter;
     }
 
     document.body.addEventListener("keydown", handleInput);
-  
     ready = true;
   });
 </script>
@@ -106,6 +118,18 @@
         >
           Reset
         </button>
+        <button
+        class="btn btn-sm variant-ghost-surface"
+        on:click={() => {
+          if (confirm("Are you sure you want to enable all characters?")) {
+            learned = HIRAGANA;
+            localStorage.setItem("learned", JSON.stringify(learned));
+            location.reload();
+          }
+        }}
+      >
+        Enable All
+      </button>
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>
