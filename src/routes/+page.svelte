@@ -2,34 +2,7 @@
   import { onMount } from "svelte";
   import { AppBar, AppShell, type ToastSettings, getToastStore } from "@skeletonlabs/skeleton";
   import keyboardJp from "$lib/keyboardJp.webp"
-
-  class Queue<T> {
-    private items: T[];
-
-    constructor(items = []) {
-        this.items = items;
-    }
-
-    enqueue(item: T): void {
-        this.items.push(item);
-    }
-
-    dequeue(): T | undefined {
-        return this.items.shift();
-    }
-
-    peek(): T | undefined {
-        return this.items[0];
-    }
-
-    isEmpty(): boolean {
-        return this.items.length === 0;
-    }
-
-    size(): number {
-        return this.items.length;
-    }
-  }
+  import { Queue } from "./queue";
 
   /**
    * Characters per minute calculator
@@ -160,6 +133,8 @@
   let minWidowInput = "15";
   let maxWindowInput = "25";
 
+  let refresher = false;
+
   const toast = getToastStore();
 
   onMount(() => {
@@ -243,13 +218,26 @@
 
     <div class="w-3/4 flex justify-center mx-auto gap-8">
       <div class="w-64 mx-auto mt-6">
-        <p>CPM Threshold</p>
+        {#key refresher}
+          <p>CPM Threshold ({cpm.getSpeedThreshold()})</p>
+        {/key}
         <div class="input-group input-group-divider grid-cols-[1fr_auto]">
           <input type="text" bind:value={threshInput} />
           <button class="variant-filled-secondary" on:click={() => {
             const conv = parseInt(threshInput);
-            if (isNaN(conv) || conv <= 0) return;
+            if (isNaN(conv) || conv <= 0) {
+              const t = {
+                message: `Invalid CPM threshold`,
+                duration: 3000,
+                background: 'variant-filled-error'
+              };
+              toast.trigger(t);
+              return;
+            }
+
             cpm.setSpeedThreshold(conv);
+            refresher = !refresher;
+
             const t = {
               message: `CPM threshold set to ${conv}`,
               duration: 3000
@@ -261,7 +249,9 @@
         </div>
       </div>
       <div class="w-64 mx-auto mt-6">
-        <p>Min Window</p>
+        {#key refresher}
+          <p>Min Window ({cpm.getMinLength()})</p>
+        {/key}
         <div class="input-group input-group-divider grid-cols-[1fr_auto]">
           <input type="text" bind:value={minWidowInput} />
           <button class="variant-filled-secondary" on:click={() => {
@@ -286,7 +276,9 @@
               return;
             }
 
-            cpm.setSpeedThreshold(conv);
+            cpm.setMinLength(conv);
+            refresher = !refresher;
+
             const t = {
               message: `Min window size set to ${conv}`,
               duration: 3000
@@ -298,7 +290,9 @@
         </div>
       </div>
       <div class="w-64 mx-auto mt-6">
-        <p>Max Window</p>
+        {#key refresher}
+          <p>Max Window ({cpm.getMaxLength()})</p>
+        {/key}
         <div class="input-group input-group-divider grid-cols-[1fr_auto]">
           <input type="text" bind:value={maxWindowInput} />
           <button class="variant-filled-secondary" on:click={() => {
@@ -323,7 +317,9 @@
               return;
             }
 
-            cpm.setSpeedThreshold(conv);
+            cpm.setMaxLength(conv);
+            refresher = !refresher;
+
             const t = {
               message: `Max window size set to ${conv}`,
               duration: 3000
