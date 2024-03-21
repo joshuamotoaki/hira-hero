@@ -1,6 +1,6 @@
 import { join } from 'path'
-
 import { skeleton } from '@skeletonlabs/tw-plugin'
+import forms from '@tailwindcss/forms';
 
 export default {
 	darkMode: 'class',
@@ -19,5 +19,6 @@ export default {
 				],
 			},
 		}),
+		forms
 	],
 };
