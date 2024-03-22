@@ -101,9 +101,7 @@
       HiraHero is not supported on mobile devices. Please use a desktop browser.
     </h1>
 </div>
-<div class="hidden sm:block">
-  <AppShell>
-    <svelte:fragment slot="header">
+<div class="hidden sm:block pb-6">
       <!-- App Bar -->
       <AppBar>
         <svelte:fragment slot="lead">
@@ -138,7 +136,6 @@
         </button>
         </svelte:fragment>
       </AppBar>
-    </svelte:fragment>
     <div class="max-w-7xl mx-auto px-8">
       {#if ready}
       <div>
@@ -167,10 +164,10 @@
     
       <img src={keyboardJp} alt="Japanese Keyboard" class="w-2/3 mx-auto mt-10" />
   
-      <div class="w-3/4 flex justify-center mx-auto gap-8">
-        <div class="w-44 mx-auto mt-6">
+      <div class="w-3/4 flex justify-center mx-auto gap-4">
+        <div class="mx-auto mt-6 flex-1">
           {#key refresher}
-            <p>CPM Threshold ({cpm.getCpmThreshold()})</p>
+            <p>CPM Thresh ({cpm.getCpmThreshold()})</p>
           {/key}
           <div class="input-group input-group-divider grid-cols-[1fr_auto]">
             <input type="text" bind:value={threshInput} />
@@ -199,7 +196,7 @@
             </button>
           </div>
         </div>
-        <div class="w-44 mx-auto mt-6">
+        <div class="mx-auto mt-6 flex-1">
           {#key refresher}
             <p>Min Window ({cpm.getMinWindow()})</p>
           {/key}
@@ -240,7 +237,7 @@
             </button>
           </div>
         </div>
-        <div class="w-44 mx-auto mt-6">
+        <div class="mx-auto mt-6 flex-1">
           {#key refresher}
             <p>Max Window ({cpm.getMaxWindow()})</p>
           {/key}
@@ -304,7 +301,6 @@
         </p>
       </div>
     </div>
-  </AppShell>
 </div>
 
 
