@@ -35,7 +35,7 @@
 
   const handleInput = (event: KeyboardEvent) => {
     if (event.key === currentDisplay[3]) {
-      if (!unlearned.isEmpty() && cpm.addTime()) {
+      if (cpm.addTime() && !unlearned.isEmpty()) {
         learned.push(unlearned.dequeue() as string);
         localStorage.setItem("learned", JSON.stringify(learned));
         numInCycle++;
